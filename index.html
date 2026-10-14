@@ -3,201 +3,306 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTokSlots | Lobbys</title>
+    <title>TikTokSlots | AI Radar & VIP</title>
     <style>
         :root {
-            --bg-deep: #0b0410;
-            --card-surface: #170b24;
-            --card-border: #2e1647;
-            --accent-lime: #10ff58;
-            --accent-lime-shadow: #059931;
-            --accent-gold: #ffbb00;
-            --accent-gold-shadow: #b37700;
-            --accent-pink: #ff0055;
-            --text-light: #ffffff;
-            --text-dim: #a392b8;
+            --bg-dark: #06070b;
+            --card-bg: #10131c;
+            --card-border: #1f2536;
+            --neon-green: #00ff73;
+            --neon-gold: #ffc400;
+            --neon-red: #ff1e42;
+            --neon-blue: #00d2ff;
+            --text-main: #ffffff;
+            --text-sub: #8b95ab;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--bg-deep);
+            background-color: var(--bg-dark);
             background-image: 
-                radial-gradient(circle at 0% 0%, rgba(255, 0, 85, 0.18), transparent 40%),
-                radial-gradient(circle at 100% 30%, rgba(16, 255, 88, 0.1), transparent 45%),
-                radial-gradient(circle at 50% 100%, rgba(138, 43, 226, 0.2), transparent 50%);
-            color: var(--text-light);
+                radial-gradient(circle at 50% 0%, rgba(0, 210, 255, 0.12), transparent 40%),
+                radial-gradient(circle at 0% 60%, rgba(0, 255, 115, 0.08), transparent 40%);
+            color: var(--text-main);
             min-height: 100vh;
-            padding-bottom: 30px;
+            padding: 12px 12px 40px 12px;
+            display: flex;
+            justify-content: center;
             overflow-x: hidden;
         }
 
-        /* --- Живая бегущая строка выигрышей (FOMO триггер) --- */
-        .ticker-wrap {
+        .app-wrap {
             width: 100%;
-            background: rgba(23, 11, 36, 0.95);
-            border-bottom: 1px solid var(--card-border);
-            overflow: hidden;
-            padding: 8px 0;
-            white-space: nowrap;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(8px);
+            max-width: 460px;
+            position: relative;
         }
 
-        .ticker {
-            display: inline-block;
-            animation: marquee 22s linear infinite;
-        }
-
-        .ticker-item {
-            display: inline-block;
-            margin: 0 18px;
-            font-size: 0.78rem;
-            font-weight: 700;
-            color: var(--text-dim);
-        }
-
-        .ticker-item b {
-            color: var(--accent-lime);
-        }
-
-        .ticker-item span {
-            color: var(--accent-gold);
-        }
-
-        @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-
-        .container {
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 14px 12px 0 12px;
-        }
-
-        /* --- Ударная плашка про VPN в стиле кибер-предупреждения --- */
-        .vpn-hazard {
-            background: repeating-linear-gradient(
-                -45deg,
-                #ff0040,
-                #ff0040 12px,
-                #d10034 12px,
-                #d10034 24px
-            );
+        /* --- Всплывающий iOS Пуш о выводах --- */
+        .live-push {
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-120px);
+            width: calc(100% - 24px);
+            max-width: 430px;
+            background: rgba(20, 25, 38, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 255, 115, 0.4);
             border-radius: 16px;
-            padding: 3px;
-            margin-bottom: 16px;
-            box-shadow: 0 6px 25px rgba(255, 0, 64, 0.4);
-        }
-
-        .vpn-inner {
-            background: #14040a;
-            border-radius: 13px;
             padding: 10px 14px;
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 10px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .live-push.active {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .push-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(0, 255, 115, 0.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .push-text {
+            font-size: 0.78rem;
+            line-height: 1.3;
+            color: #e2e8f0;
+        }
+
+        .push-text b {
+            color: var(--neon-green);
+        }
+
+        /* --- Верхний блок: VPN + Таймер сессии --- */
+        .top-alert {
+            background: linear-gradient(135deg, #2b0812, #160409);
+            border: 1px solid var(--neon-red);
+            border-radius: 18px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
+            box-shadow: 0 6px 25px rgba(255, 30, 66, 0.25);
+        }
+
+        .vpn-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: #fff;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .vpn-row span {
+            background: var(--neon-red);
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 6px;
+            animation: blink-bg 1.2s infinite;
+        }
+
+        @keyframes blink-bg {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.65; }
+        }
+
+        .timer-row {
+            background: rgba(0, 0, 0, 0.45);
+            border-radius: 10px;
+            padding: 6px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: var(--text-sub);
+        }
+
+        .timer-val {
+            color: var(--neon-gold);
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            font-size: 0.88rem;
+        }
+
+        /* --- Интерактив: Открой Сундук --- */
+        .chest-box {
+            background: linear-gradient(145deg, #161b29, #0d1018);
+            border: 1px solid rgba(255, 196, 0, 0.35);
+            border-radius: 18px;
+            padding: 14px;
             text-align: center;
+            margin-bottom: 14px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .vpn-icon {
-            font-size: 1.6rem;
-            animation: shake 1.5s infinite;
+        .chest-title {
+            font-size: 0.9rem;
+            font-weight: 900;
+            color: var(--neon-gold);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
         }
 
-        @keyframes shake {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(-10deg); }
-            75% { transform: rotate(10deg); }
+        .chest-sub {
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            margin-bottom: 12px;
         }
 
-        .vpn-text {
+        .chests-row {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .chest-btn {
+            background: rgba(255, 196, 0, 0.08);
+            border: 1px dashed rgba(255, 196, 0, 0.4);
+            border-radius: 14px;
+            width: 85px;
+            height: 75px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .chest-btn:nth-child(2) { animation-delay: 0.3s; }
+        .chest-btn:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .chest-btn:active {
+            transform: scale(0.92);
+        }
+
+        .chest-emoji {
+            font-size: 2rem;
+            line-height: 1;
+        }
+
+        .chest-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--neon-gold);
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+
+        .chest-result {
+            display: none;
+            background: rgba(0, 255, 115, 0.1);
+            border: 1px solid var(--neon-green);
+            border-radius: 12px;
+            padding: 10px;
+            margin-top: 6px;
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.85); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .chest-result strong {
+            display: block;
+            color: var(--neon-green);
+            font-size: 0.9rem;
+            margin-bottom: 3px;
+        }
+
+        .chest-result span {
+            font-size: 0.78rem;
+            color: #fff;
+        }
+
+        /* --- Блок Telegram --- */
+        .tg-card {
+            background: linear-gradient(90deg, #0066ff 0%, #00a2ff 100%);
+            border-radius: 18px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: #fff;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0, 132, 255, 0.35);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tg-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tg-avatar {
+            width: 46px;
+            height: 46px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .tg-text h2 {
             font-size: 1.05rem;
             font-weight: 900;
-            text-transform: uppercase;
-            color: #fff;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
 
-        .vpn-text span {
-            color: var(--accent-gold);
-            text-decoration: underline;
+        .tg-text p {
+            font-size: 0.76rem;
+            opacity: 0.9;
+            margin-top: 2px;
         }
 
-        /* --- VIP Баннер Telegram с 3D кнопкой --- */
-        .tg-banner {
-            background: linear-gradient(135deg, #2a0e4a 0%, #150626 100%);
-            border: 2px solid var(--accent-gold);
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 20px;
-            text-align: center;
-            position: relative;
-            box-shadow: 0 8px 30px rgba(255, 187, 0, 0.15);
-        }
-
-        .tg-crown {
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--accent-gold);
-            color: #000;
-            font-size: 0.7rem;
+        .tg-action {
+            background: #fff;
+            color: #0066ff;
             font-weight: 900;
-            padding: 3px 12px;
-            border-radius: 20px;
+            font-size: 0.8rem;
+            padding: 9px 14px;
+            border-radius: 10px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            flex-shrink: 0;
         }
 
-        .tg-title {
-            font-size: 1.35rem;
-            font-weight: 900;
-            color: #fff;
-            margin-top: 4px;
-            margin-bottom: 4px;
-            letter-spacing: 0.5px;
-        }
-
-        .tg-sub {
-            font-size: 0.82rem;
-            color: var(--text-dim);
-            margin-bottom: 14px;
-        }
-
-        .btn-3d-gold {
-            display: block;
-            width: 100%;
-            background: linear-gradient(180deg, #ffdd40 0%, #ffaa00 100%);
-            color: #000;
-            text-decoration: none;
-            font-weight: 900;
-            font-size: 0.95rem;
-            text-transform: uppercase;
-            padding: 13px;
-            border-radius: 14px;
-            box-shadow: 0 5px 0 var(--accent-gold-shadow), 0 8px 20px rgba(255, 187, 0, 0.35);
-            transition: all 0.1s ease;
-        }
-
-        .btn-3d-gold:active {
-            transform: translateY(5px);
-            box-shadow: 0 0 0 var(--accent-gold-shadow);
-        }
-
-        /* --- Сетка Игр 2x3 (Две в ряд на мобилке) --- */
-        .lobby-header {
+        /* --- Заголовок секции слотов --- */
+        .radar-head {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -205,254 +310,422 @@
             padding: 0 4px;
         }
 
-        .lobby-title {
-            font-size: 1rem;
+        .radar-title {
+            font-size: 0.9rem;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
+            color: #fff;
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .online-count {
-            font-size: 0.75rem;
-            background: rgba(16, 255, 88, 0.12);
-            color: var(--accent-lime);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-weight: 800;
-            border: 1px solid rgba(16, 255, 88, 0.3);
+        .radar-status {
+            font-size: 0.72rem;
+            color: var(--neon-green);
+            font-weight: 700;
+            background: rgba(0, 255, 115, 0.1);
+            padding: 3px 8px;
+            border-radius: 8px;
         }
 
-        .bento-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+        /* --- Карточки Игр со шкалой нагрева --- */
+        .slots-container {
+            display: flex;
+            flex-direction: column;
             gap: 12px;
             margin-bottom: 24px;
         }
 
-        .slot-tile {
-            background: var(--card-surface);
+        .slot-card {
+            background: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 18px;
-            padding: 10px;
+            padding: 12px;
             display: flex;
-            flex-direction: column;
+            align-items: center;
             justify-content: space-between;
+            gap: 12px;
+            text-decoration: none;
             position: relative;
-            transition: transform 0.2s;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+            transition: transform 0.15s ease, border-color 0.2s;
         }
 
-        /* Выделение топ слота */
-        .slot-tile.top-hit {
-            border-color: var(--accent-lime);
-            box-shadow: 0 0 20px rgba(16, 255, 88, 0.15);
+        .slot-card.hot-border {
+            border-color: rgba(0, 255, 115, 0.5);
+            box-shadow: 0 4px 20px rgba(0, 255, 115, 0.1);
         }
 
-        .tile-badge {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(4px);
-            color: var(--accent-lime);
-            font-size: 0.65rem;
-            font-weight: 900;
-            padding: 3px 7px;
-            border-radius: 8px;
-            border: 1px solid rgba(16, 255, 88, 0.4);
-            z-index: 2;
+        .slot-card:active {
+            transform: scale(0.98);
         }
 
-        .tile-badge.fire {
-            background: var(--accent-pink);
-            color: #fff;
-            border: none;
+        .slot-info-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-grow: 1;
+            min-width: 0;
         }
 
-        .slot-img {
-            width: 100%;
-            height: 110px;
+        .slot-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 14px;
             object-fit: cover;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.12);
         }
 
-        .slot-name {
-            font-size: 0.95rem;
+        .slot-details {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .slot-top-line {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .slot-title {
+            font-size: 1.05rem;
             font-weight: 900;
             color: #fff;
-            margin-bottom: 2px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .slot-win {
-            font-size: 0.72rem;
-            color: var(--text-dim);
-            margin-bottom: 10px;
+        .badge-hot {
+            background: var(--neon-red);
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: 900;
+            padding: 2px 6px;
+            border-radius: 5px;
+            text-transform: uppercase;
+            flex-shrink: 0;
         }
 
-        .slot-win b {
-            color: var(--accent-gold);
+        /* Шкала нагрева слота */
+        .heat-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-sub);
+            margin-bottom: 4px;
+            font-weight: 600;
         }
 
-        .btn-3d-play {
-            display: block;
+        .heat-label b {
+            color: var(--neon-green);
+        }
+
+        .heat-bar-bg {
             width: 100%;
-            text-align: center;
-            background: linear-gradient(180deg, #2bff6b 0%, #00cc44 100%);
+            height: 6px;
+            background: #1c2233;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .heat-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-gold), var(--neon-green));
+            border-radius: 10px;
+        }
+
+        /* Кнопка с бегущим бликом */
+        .btn-shine {
+            background: linear-gradient(180deg, #00ff73 0%, #00b853 100%);
             color: #000;
-            text-decoration: none;
             font-weight: 900;
             font-size: 0.82rem;
+            padding: 13px 16px;
+            border-radius: 12px;
             text-transform: uppercase;
-            padding: 10px 0;
-            border-radius: 11px;
-            box-shadow: 0 4px 0 var(--accent-lime-shadow);
-            transition: all 0.1s ease;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 255, 115, 0.3);
         }
 
-        .btn-3d-play:active {
-            transform: translateY(4px);
-            box-shadow: 0 0 0 var(--accent-lime-shadow);
+        .btn-shine::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 40%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: rotate(30deg);
+            animation: shine 2.8s infinite;
         }
 
-        /* --- Подвал --- */
+        @keyframes shine {
+            0% { left: -60%; }
+            35%, 100% { left: 130%; }
+        }
+
         .footer {
             text-align: center;
-            font-size: 0.7rem;
-            color: var(--text-dim);
-            padding: 12px;
-            border-top: 1px solid var(--card-border);
+            font-size: 0.72rem;
+            color: var(--text-sub);
             line-height: 1.5;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
     </style>
 </head>
 <body>
 
-    <!-- Бегущая строка заносов -->
-    <div class="ticker-wrap">
-        <div class="ticker">
-            <div class="ticker-item">🔥 Игрок ***84 поднял <b>18 400 ₽</b> в <span>Falling Pickaxe</span></div>
-            <div class="ticker-item">⚡ Игрок ***19 словил <b>x145</b> в <span>TowerRush</span></div>
-            <div class="ticker-item">💎 Игрок ***55 вывел <b>42 000 ₽</b> в <span>MineDrop</span></div>
-            <div class="ticker-item">🚀 Игрок ***07 забрал <b>12 900 ₽</b> в <span>Aviamaster</span></div>
-            <!-- Дубликат для бесшовной прокрутки -->
-            <div class="ticker-item">🔥 Игрок ***84 поднял <b>18 400 ₽</b> в <span>Falling Pickaxe</span></div>
-            <div class="ticker-item">⚡ Игрок ***19 словил <b>x145</b> в <span>TowerRush</span></div>
-            <div class="ticker-item">💎 Игрок ***55 вывел <b>42 000 ₽</b> в <span>MineDrop</span></div>
-            <div class="ticker-item">🚀 Игрок ***07 забрал <b>12 900 ₽</b> в <span>Aviamaster</span></div>
+    <!-- Всплывающее пуш-уведомление о выводах -->
+    <div class="live-push" id="livePush">
+        <div class="push-icon">💸</div>
+        <div class="push-text" id="pushText">
+            Игрок <b>ID 8492</b> только что вывел <b>28 500 ₽</b> из слота <b>Falling Pickaxe</b>
         </div>
     </div>
 
-    <div class="container">
+    <div class="app-wrap">
 
-        <!-- Ударное предупреждение про VPN -->
-        <div class="vpn-hazard">
-            <div class="vpn-inner">
-                <span class="vpn-icon">🚫</span>
-                <div class="vpn-text">Перед игрой <span>ВЫКЛЮЧИ VPN!</span></div>
+        <!-- Блок про VPN + Таймер сессии -->
+        <div class="top-alert">
+            <div class="vpn-row">
+                ⚠️ ПЕРЕД ИГРОЙ <span>ВЫКЛЮЧИ VPN!</span>
+            </div>
+            <div class="timer-row">
+                <span>⚡ Повышенная отдача активна:</span>
+                <span class="timer-val" id="countdown">14:59</span>
             </div>
         </div>
 
-        <!-- VIP Блок Telegram -->
-        <div class="tg-banner">
-            <div class="tg-crown">👑 VIP Клуб</div>
-            <div class="tg-title">CAS_x_WIN</div>
-            <div class="tg-sub">Приватные сигналы, схемы и бонус +500% в канале</div>
-            <a href="https://t.me/cas_xx" class="btn-3d-gold" target="_blank" rel="noopener">
-                🔓 Забрать схемы в Telegram
-            </a>
+        <!-- Интерактив: Выбери Сундук -->
+        <div class="chest-box">
+            <div class="chest-title">🎁 Забери буст перед стартом</div>
+            <div class="chest-sub" id="chestSub">Нажми на любой сундук, чтобы активировать бонус к алгоритму:</div>
+            
+            <div class="chests-row" id="chestsRow">
+                <div class="chest-btn" onclick="openChest()">
+                    <span class="chest-emoji">🧰</span>
+                    <span class="chest-label">Кейс #1</span>
+                </div>
+                <div class="chest-btn" onclick="openChest()">
+                    <span class="chest-emoji">🧰</span>
+                    <span class="chest-label">Кейс #2</span>
+                </div>
+                <div class="chest-btn" onclick="openChest()">
+                    <span class="chest-emoji">🧰</span>
+                    <span class="chest-label">Кейс #3</span>
+                </div>
+            </div>
+
+            <div class="chest-result" id="chestResult">
+                <strong>🔥 ВЫБИТ VIP-БУСТ: ШАНС x100 + 500% БОНУС!</strong>
+                <span>Буст привязан к твоей сессии. Выбирай любую игру ниже или забирай схемы в нашем ТГ!</span>
+            </div>
         </div>
 
-        <!-- Заголовок лобби -->
-        <div class="lobby-header">
-            <div class="lobby-title">🎰 Игровое лобби</div>
-            <div class="online-count">● 1 428 в игре</div>
+        <!-- Telegram Канал -->
+        <a href="https://t.me/cas_xx" class="tg-card" target="_blank" rel="noopener">
+            <div class="tg-left">
+                <div class="tg-avatar">💎</div>
+                <div class="tg-text">
+                    <h2>CAS_x_WIN • VIP Канал</h2>
+                    <p>Приватные схемы, промокоды и заносы</p>
+                </div>
+            </div>
+            <div class="tg-action">Открыть</div>
+        </a>
+
+        <!-- Заголовок списка игр -->
+        <div class="radar-head">
+            <div class="radar-title">📡 AI-Радар слотов</div>
+            <div class="radar-status">● Обновлено только что</div>
         </div>
 
-        <!-- Плитка игр 2 в ряд -->
-        <div class="bento-grid">
+        <!-- Список из 6 игр -->
+        <div class="slots-container">
 
             <!-- 1. Falling Pickaxe -->
-            <div class="slot-tile top-hit">
-                <span class="tile-badge fire">🔥 ТОП-1</span>
-                <div>
-                    <img src="https://images.sigma.world/Falling-Pickaxe-Pixmove-Games.png" alt="Falling Pickaxe" class="slot-img">
-                    <div class="slot-name">Falling Pickaxe</div>
-                    <div class="slot-win">Макс. куш: <b>x1000</b></div>
+            <a href="https://r1wnbepa.life/casino/play/v_pixmove:fallingpickaxe?p=gzol" class="slot-card hot-border" target="_blank">
+                <div class="slot-info-wrap">
+                    <img src="https://images.sigma.world/Falling-Pickaxe-Pixmove-Games.png" alt="Falling Pickaxe" class="slot-icon">
+                    <div class="slot-details">
+                        <div class="slot-top-line">
+                            <span class="slot-title">Falling Pickaxe</span>
+                            <span class="badge-hot">РАЗРЫВ</span>
+                        </div>
+                        <div class="heat-label">
+                            <span>Заряд на выдачу:</span>
+                            <b>99.1%</b>
+                        </div>
+                        <div class="heat-bar-bg">
+                            <div class="heat-bar-fill" style="width: 99%;"></div>
+                        </div>
+                    </div>
                 </div>
-                <a href="https://one-vv1798.com/casino/play/v_pixmove:fallingpickaxe?p=gzol" class="btn-3d-play" target="_blank">Играть</a>
-            </div>
+                <div class="btn-shine">Играть</div>
+            </a>
 
-            <!-- 2. TowerRush -->
-            <div class="slot-tile">
-                <span class="tile-badge">98.4% RTP</span>
-                <div>
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwNnf_amsYq6pf-lKBD8195v-wTWA1VbkwPivV0AROWi_Ug9EUHDTi3BXw&s=10" alt="TowerRush" class="slot-img">
-                    <div class="slot-name">TowerRush</div>
-                    <div class="slot-win">Быстрые <b>выплаты</b></div>
+            <!-- 2. TowerRush (исправлен хвост на ?p=gzol) -->
+            <a href="https://r1wnbepa.life/casino/play/v_galaxsysgames:towerrush?p=gzol" class="slot-card" target="_blank">
+                <div class="slot-info-wrap">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwNnf_amsYq6pf-lKBD8195v-wTWA1VbkwPivV0AROWi_Ug9EUHDTi3BXw&s=10" alt="TowerRush" class="slot-icon">
+                    <div class="slot-details">
+                        <div class="slot-top-line">
+                            <span class="slot-title">TowerRush</span>
+                            <span class="badge-hot" style="background:#ff8800;">ТОП</span>
+                        </div>
+                        <div class="heat-label">
+                            <span>Заряд на выдачу:</span>
+                            <b>98.4%</b>
+                        </div>
+                        <div class="heat-bar-bg">
+                            <div class="heat-bar-fill" style="width: 96%;"></div>
+                        </div>
+                    </div>
                 </div>
-                <a href="https://one-vv1798.com/casino/play/v_galaxsysgames:towerrush?p=gzol" class="btn-3d-play" target="_blank">Играть</a>
-            </div>
+                <div class="btn-shine">Играть</div>
+            </a>
 
             <!-- 3. Aviamaster -->
-            <div class="slot-tile">
-                <span class="tile-badge">КРАШ</span>
-                <div>
-                    <img src="https://static.templodeslots.es/pict/1197443/Aviamasters.png" alt="Aviamaster" class="slot-img">
-                    <div class="slot-name">Aviamaster</div>
-                    <div class="slot-win">Заносы до <b>x500</b></div>
+            <a href="https://r1wnbepa.life/casino/play/v_bgmng:aviamasters?p=gzol" class="slot-card" target="_blank">
+                <div class="slot-info-wrap">
+                    <img src="https://static.templodeslots.es/pict/1197443/Aviamasters.png" alt="Aviamaster" class="slot-icon">
+                    <div class="slot-details">
+                        <div class="slot-top-line">
+                            <span class="slot-title">Aviamaster</span>
+                        </div>
+                        <div class="heat-label">
+                            <span>Заряд на выдачу:</span>
+                            <b>97.8%</b>
+                        </div>
+                        <div class="heat-bar-bg">
+                            <div class="heat-bar-fill" style="width: 94%;"></div>
+                        </div>
+                    </div>
                 </div>
-                <a href="https://one-vv1798.com/casino/play/v_bgmng:aviamasters?p=gzol" class="btn-3d-play" target="_blank">Играть</a>
-            </div>
+                <div class="btn-shine">Играть</div>
+            </a>
 
             <!-- 4. Ice Fishing -->
-            <div class="slot-tile">
-                <span class="tile-badge">БОНУСЫ</span>
-                <div>
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrvcbUCy2NvQ8CuXuv-JJhNzgkA6TmE2SsgZVsDCQVQQ&s=10" alt="Ice Fishing" class="slot-img">
-                    <div class="slot-name">Ice Fishing</div>
-                    <div class="slot-win">Редкие <b>иксы</b></div>
+            <a href="https://r1wnbepa.life/casino/play/v_evolution:1winicefishing?p=gzol" class="slot-card" target="_blank">
+                <div class="slot-info-wrap">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrvcbUCy2NvQ8CuXuv-JJhNzgkA6TmE2SsgZVsDCQVQQ&s=10" alt="Ice Fishing" class="slot-icon">
+                    <div class="slot-details">
+                        <div class="slot-top-line">
+                            <span class="slot-title">Ice Fishing</span>
+                        </div>
+                        <div class="heat-label">
+                            <span>Заряд на выдачу:</span>
+                            <b>98.0%</b>
+                        </div>
+                        <div class="heat-bar-bg">
+                            <div class="heat-bar-fill" style="width: 95%;"></div>
+                        </div>
+                    </div>
                 </div>
-                <a href="https://one-vv1798.com/casino/play/v_evolution:1winicefishing?p=gzol" class="btn-3d-play" target="_blank">Играть</a>
-            </div>
+                <div class="btn-shine">Играть</div>
+            </a>
 
             <!-- 5. Doodle Crash -->
-            <div class="slot-tile">
-                <span class="tile-badge">ХИТ</span>
-                <div>
-                    <img src="https://media.licdn.com/dms/image/v2/D4D22AQGWI1wPHhq83A/feedshare-shrink_800/feedshare-shrink_800/0/1689852646578?e=2147483647&v=beta&t=usXhsgeRUuHPDUuiW4jzJ3TOQUCDjGtgjqzSeviSXMY" alt="Doodle Crash" class="slot-img">
-                    <div class="slot-name">Doodle Crash</div>
-                    <div class="slot-win">Легкий <b>старт</b></div>
+            <a href="https://r1wnbepa.life/casino/play/v_barbarabang:doodlecrash?p=gzol" class="slot-card" target="_blank">
+                <div class="slot-info-wrap">
+                    <img src="https://media.licdn.com/dms/image/v2/D4D22AQGWI1wPHhq83A/feedshare-shrink_800/feedshare-shrink_800/0/1689852646578?e=2147483647&v=beta&t=usXhsgeRUuHPDUuiW4jzJ3TOQUCDjGtgjqzSeviSXMY" alt="Doodle Crash" class="slot-icon">
+                    <div class="slot-details">
+                        <div class="slot-top-line">
+                            <span class="slot-title">Doodle Crash</span>
+                        </div>
+                        <div class="heat-label">
+                            <span>Заряд на выдачу:</span>
+                            <b>97.5%</b>
+                        </div>
+                        <div class="heat-bar-bg">
+                            <div class="heat-bar-fill" style="width: 92%;"></div>
+                        </div>
+                    </div>
                 </div>
-                <a href="https://one-vv1798.com/casino/play/v_barbarabang:doodlecrash?p=gzol" class="btn-3d-play" target="_blank">Играть</a>
-            </div>
+                <div class="btn-shine">Играть</div>
+            </a>
 
             <!-- 6. MineDrop -->
-            <div class="slot-tile top-hit">
-                <span class="tile-badge fire">💎 VIP</span>
-                <div>
-                    <img src="https://bonustiime.com/wp-content/uploads/2025/09/Minedrop-slot-feature-multiplier-2-1024x576.webp" alt="MineDrop" class="slot-img">
-                    <div class="slot-name">MineDrop</div>
-                    <div class="slot-win">Куш до <b>x1000</b></div>
+            <a href="https://r1wnbepa.life/casino/list?open=register&p=gzol" class="slot-card hot-border" target="_blank">
+                <div class="slot-info-wrap">
+                    <img src="https://bonustiime.com/wp-content/uploads/2025/09/Minedrop-slot-feature-multiplier-2-1024x576.webp" alt="MineDrop" class="slot-icon">
+                    <div class="slot-details">
+                        <div class="slot-top-line">
+                            <span class="slot-title">MineDrop</span>
+                            <span class="badge-hot">VIP</span>
+                        </div>
+                        <div class="heat-label">
+                            <span>Заряд на выдачу:</span>
+                            <b>98.9%</b>
+                        </div>
+                        <div class="heat-bar-bg">
+                            <div class="heat-bar-fill" style="width: 98%;"></div>
+                        </div>
+                    </div>
                 </div>
-                <a href="https://r1wvvar.life/casino/list?open=register&p=gzol" class="btn-3d-play" target="_blank">Играть</a>
-            </div>
+                <div class="btn-shine">Играть</div>
+            </a>
 
         </div>
 
         <div class="footer">
-            🔞 <b>TikTokSlots © 2026 | Строго 18+</b><br>
-            Для корректной работы алгоритмов обязательно отключайте VPN. Играйте ответственно.
+            🔞 <b>Строго 18+ | TikTokSlots AI © 2026</b><br>
+            Обязательно отключайте VPN перед входом в игру. Контролируйте банк и играйте ответственно.
         </div>
 
     </div>
 
+    <script>
+        // 1. Логика открытия сундука
+        function openChest() {
+            document.getElementById('chestsRow').style.display = 'none';
+            document.getElementById('chestSub').style.display = 'none';
+            document.getElementById('chestResult').style.display = 'block';
+        }
+
+        // 2. Таймер обратного отсчета (15 минут)
+        let timeLeft = 14 * 60 + 59;
+        const timerEl = document.getElementById('countdown');
+        setInterval(() => {
+            if (timeLeft <= 0) timeLeft = 15 * 60;
+            timeLeft--;
+            const mins = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+            const secs = String(timeLeft % 60).padStart(2, '0');
+            timerEl.textContent = `${mins}:${secs}`;
+        }, 1000);
+
+        // 3. Всплывающие уведомления о выигрышах (Push)
+        const pushes = [
+            "Игрок <b>ID 8492</b> только что вывел <b>28 500 ₽</b> из <b>Falling Pickaxe</b>",
+            "Игрок <b>ID 1904</b> словил множитель <b>x240</b> в <b>TowerRush</b>",
+            "Игрок <b>ID 6311</b> забрал <b>41 200 ₽</b> на карту из <b>MineDrop</b>",
+            "Игрок <b>ID 3088</b> поднял с бонуса <b>19 800 ₽</b> в <b>Aviamaster</b>",
+            "Игрок <b>ID 7721</b> активировал баг и вывел <b>54 000 ₽</b> в <b>Ice Fishing</b>"
+        ];
+        let pushIndex = 0;
+        const pushBox = document.getElementById('livePush');
+        const pushText = document.getElementById('pushText');
+
+        function triggerPush() {
+            pushText.innerHTML = pushes[pushIndex];
+            pushBox.classList.add('active');
+            setTimeout(() => {
+                pushBox.classList.remove('active');
+            }, 3800);
+            pushIndex = (pushIndex + 1) % pushes.length;
+        }
+
+        setTimeout(triggerPush, 2500);
+        setInterval(triggerPush, 8500);
+    </script>
 </body>
 </html>
